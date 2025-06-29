@@ -1,0 +1,308 @@
+:root {
+    --bg-dark: #16181b;
+    --panel-dark: #20222a;
+    --panel-light: #fff;
+    --text-dark: #e0e0e0;
+    --text-light: #20222a;
+    --accent: #13a7ff;
+    --accent-light: #10b3fd;
+    --shadow: 0 4px 24px #0005;
+    --border-radius: 22px;
+}
+body {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0; padding: 0;
+    transition: background 0.25s, color 0.25s;
+}
+body.lightmode {
+    background: #eef2fb;
+    color: var(--text-light);
+}
+.theme-toggle {
+    position: absolute;
+    top: 25px;
+    right: 32px;
+    z-index: 1000;
+}
+.switch {
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    background: #20222a;
+    border-radius: 18px;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid #13a7ff;
+    box-shadow: 0 1px 6px #0003;
+}
+.switch:before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #13a7ff;
+    transition: left 0.2s, background 0.2s;
+}
+#themeSwitch:checked + .switch:before {
+    left: 24px;
+    background: #ffd700;
+}
+#themeSwitch {
+    display: none;
+}
+body.lightmode .switch {
+    background: #fff;
+    border: 2px solid #ffd700;
+}
+body.lightmode .switch:before {
+    background: #ffd700;
+}
+
+.appgrid {
+    display: grid;
+    grid-template-columns: 1.08fr 1fr;
+    gap: 36px;
+    width: 100vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 38px 4vw 80px 4vw;
+    align-items: flex-start;
+}
+
+.left-col, .right-col {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+}
+.webcam-box {
+    width: 100%;
+    background: var(--panel-dark);
+    border-radius: var(--border-radius);
+    padding: 18px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    min-height: 340px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+body.lightmode .webcam-box {
+    background: var(--panel-light);
+    box-shadow: 0 4px 16px #10b3fd33;
+}
+.webcam-box img {
+    width: 440px;
+    height: 320px;
+    max-width: 99%;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px #0001;
+}
+.control-panel {
+    background: var(--panel-dark);
+    border-radius: var(--border-radius);
+    padding: 21px 20px 18px 20px;
+    width: 100%;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+body.lightmode .control-panel {
+    background: var(--panel-light);
+}
+.status-box {
+    margin-bottom: 17px;
+    font-size: 1.09em;
+    background: #18191d;
+    padding: 13px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 7px #0001;
+    width: 100%;
+    box-sizing: border-box;
+}
+body.lightmode .status-box {
+    background: #f2f6fa;
+    color: #1a232e;
+}
+.status-box .ok {
+    color: #39f589;
+    font-weight: bold;
+}
+#debugbtn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 9px 28px;
+    border-radius: 9px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    box-shadow: 0 1px 4px #0002;
+    transition: background 0.18s;
+}
+#debugbtn:hover {
+    background: #39f589;
+    color: #151a1f;
+}
+form label {
+    display: block;
+    margin-bottom: 4px;
+}
+form input, form select {
+    background: #222;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 7px;
+    padding: 7px 10px;
+    margin: 0 4px 9px 0;
+}
+body.lightmode form input,
+body.lightmode form select {
+    background: #fff;
+    color: #191c20;
+    border: 1px solid #c0c0c0;
+}
+form .row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.right-col {
+    align-items: stretch;
+    width: 100%;
+    justify-content: flex-start;
+}
+.chatbox {
+    background: var(--panel-dark);
+    border-radius: var(--border-radius);
+    padding: 23px 20px 19px 20px;
+    min-height: 250px;
+    max-height: 345px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+}
+body.lightmode .chatbox {
+    background: var(--panel-light);
+}
+#chatlog {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 115px;
+    max-height: 170px;
+    margin-bottom: 13px;
+    font-size: 1.08em;
+}
+.chatinput-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#chatinput {
+    flex: 1 1 auto;
+    background: #191c20;
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 11px 16px;
+    font-size: 1.07em;
+    margin: 0 2px;
+    outline: none;
+}
+body.lightmode #chatinput {
+    background: #f3f8fe;
+    color: #191c20;
+}
+#sendbtn {
+    background: var(--accent-light);
+    color: #fff;
+    border: none;
+    padding: 9px 19px;
+    border-radius: 9px;
+    font-size: 1.3em;
+    cursor: pointer;
+    margin-left: 3px;
+    box-shadow: 0 1px 4px #0002;
+}
+#sendbtn:hover {
+    background: #39f589;
+    color: #151a1f;
+}
+.micicon {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #20222a;
+    box-shadow: 0 2px 8px #0001;
+    margin-right: 10px;
+    transition: filter 0.2s;
+    border: none;
+    padding: 0;
+}
+body.lightmode .micicon {
+    background: #fff;
+    border: 1px solid #13a7ff;
+}
+.command-buttons {
+    display: flex;
+    gap: 19px;
+    margin-top: 7px;
+    justify-content: flex-end;
+}
+.command-buttons button {
+    background: #32364a;
+    color: #fff;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 11px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.19s;
+    box-shadow: 0 1px 4px #0002;
+}
+.command-buttons button:hover {
+    background: #13a7ff;
+    color: #1d2532;
+}
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    background: #191c20;
+    color: #bbb;
+    text-align: center;
+    font-size: 1.05em;
+    padding: 16px 0 10px 0;
+    letter-spacing: 0.09em;
+    opacity: 0.87;
+    z-index: 100;
+    box-shadow: 0 -2px 10px #0002;
+}
+.footer a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.18s;
+}
+.footer a:hover {
+    color: #13a7ff;
+}
+@media (max-width: 900px) {
+    .appgrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 10px 1vw 90px 1vw;
+    }
+    .chatbox, .control-panel, .webcam-box {
+        min-width: 94vw;
+        max-width: 99vw;
+    }
+}

@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  n8ncam:
+    build: .
+    container_name: n8ncam_app
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+# Optional: Eigener Postgres-Service
+#   db:
+#     image: postgres:17
+#     environment:
+#       POSTGRES_DB: ${POSTGRES_DB}
+#       POSTGRES_USER: ${POSTGRES_USER}
+#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - db_data:/var/lib/postgresql/data
+#
+# volumes:
+#   db_data:

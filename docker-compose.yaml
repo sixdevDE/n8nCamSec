@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: sixdevdb
+      POSTGRES_USER: sixdev
+      POSTGRES_PASSWORD: Asdff1234!!
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  n8ncam:
+    build: .
+    environment:
+      POSTGRES_DB: sixdevdb
+      POSTGRES_USER: sixdev
+      POSTGRES_PASSWORD: Asdff1234!!
+      POSTGRES_HOST: db
+    depends_on:
+      - db
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/app
+
+volumes:
+  db_data:

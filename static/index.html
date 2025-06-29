@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>n8nCAM – Security Vision</title>
+    <link rel="stylesheet" href="/static/style.css"/>
+    <meta name="viewport" content="width=1024">
+</head>
+<body>
+    <div class="theme-toggle">
+        <label>
+            <input type="checkbox" id="themeSwitch">
+            <span id="themeLabel">🌙</span>
+        </label>
+    </div>
+    <div class="appgrid">
+        <div class="left-col">
+            <div class="webcam-box">
+                <img id="webcamframe" src="/stream" width="420" height="320" />
+                <div class="debug-panel" id="debugpanel">
+                    <span>Status: <span id="status_debug">AUS</span></span>
+                </div>
+            </div>
+            <div class="panel status-panel">
+                <span id="statusbox"></span>
+            </div>
+        </div>
+        <div class="right-col">
+            <div class="panel chat-panel">
+                <div id="chatlog"></div>
+                <div class="chatinput-row">
+                    <button id="micbtn" title="Spracheingabe">🎤</button>
+                    <input id="chatinput" type="text" placeholder="Sprich oder tippe..." autocomplete="off"/>
+                    <button id="sendbtn">➤</button>
+                </div>
+            </div>
+            <div class="panel command-panel">
+                <button onclick="sendCommand('personal_anlegen')">Personal anlegen</button>
+                <button onclick="sendCommand('alarm_scharf')">Alarmanlage scharf</button>
+                <button onclick="sendCommand('alarm_aus')">Alarmanlage aus</button>
+                <button id="debugbtn" type="button">Debug umschalten</button>
+            </div>
+            <div class="panel reg-panel">
+                <form id="regform" autocomplete="off">
+                    <strong>Profil anlegen</strong><br>
+                    <label>Name:<input name="name" id="name" /></label><br>
+                    <label>Abteilung:<input name="dept" id="dept" /></label><br>
+                    <button id="regstart" type="button">Speichern</button>
+                </form>
+                <span id="reg_status"></span>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        sixdev © 2025 | <a href="https://sixdev.de/n8ncam" target="_blank">Zur Website</a>
+    </footer>
+    <!-- Audio für Browseralarm -->
+    <audio id="alarm_voice" src="/static/alarm_voice.mp3"></audio>
+    <audio id="alarm_mp3" src="/static/alarm.mp3"></audio>
+    <script>
+    // ===== Theme Switch =====
+    let dark = localStorage.getItem("theme") === "dark";
+    function applyTheme() {
+        document.body.classList.toggle("dark", dark);
+        document.getElementById("themeSwitch").checked = dark;
+        document.getElementById("themeLabel").innerText = dark ? "☀️" : "🌙";
+    }
+    document.getElementById("themeSwitch").onchange = () => {
+        dark = !dark;
+        localStorage.setItem("theme", dark ? "dark" : "light");
+        applyTheme();
+    };
+    applyTheme();
+
+    // ===== Status-Update & Alarm-Monitor =====
+    let alarmWasActive = false;
+    function updateStatus() {
+        fetch('/status').then(r => r.json()).then(status => {
+            // Statusanzeige
+            document.getElementById('status_debug').innerText = status.debug ? 'AN' : 'AUS';
+            document.getElementById('statusbox').innerHTML = `
+                <b>Kamera:</b> OK<br>
+                <b>Profil:</b> ${status.profil ?? '-'}<br>
+                <b>Abteilung:</b> ${status.abteilung ?? '-'}<br>
+                <b>Distanz:</b> ${status.dist ?? '-'}<br>
+                <b>Liveness:</b> ${status.liveness ? 'JA' : 'NEIN'}<br>
+                <b>Registrierung:</b> ${status.registering ? (status.register_msg ?? '...') : '-'}<br>
+                <b>Alarmanlage:</b> ${status.alarm_active ? 'SCHARF' : 'AUS'}
+            `;
+            document.getElementById('reg_status').innerText = status.register_msg ?? '';
+            // Alarm-Playback im Browser
+            if(status.alarm_active && !alarmWasActive) {
+                document.getElementById('alarm_voice').play();
+            }
+            alarmWasActive = status.alarm_active;
+        });
+    }
+    setInterval(updateStatus, 700);
+
+    // ===== Audio-Chaining =====
+    document.getElementById('alarm_voice').onended = function() {
+        document.getElementById('alarm_mp3').play();
+    }
+
+    // ===== Debug Toggle =====
+    document.getElementById('debugbtn').onclick = () => {
+        fetch('/toggle_debug', {method:'POST'}).then(r => r.json()).then(resp => {
+            document.getElementById('status_debug').innerText = resp.debug ? 'AN' : 'AUS';
+        });
+    };
+
+    // ===== Registrierung =====
+    document.getElementById('regstart').onclick = () => {
+        const form = document.getElementById('regform');
+        fetch('/register', {
+            method:'POST',
+            body: new FormData(form)
+        }).then(r=>r.json()).then(resp => {
+            alert(resp.ok ? 'Registrierung läuft...' : resp.message);
+        });
+    };
+
+    // ===== Chat / Commands =====
+    function addMsg(txt, who="user") {
+        let log = document.getElementById('chatlog');
+        let div = document.createElement('div');
+        div.innerHTML = '<b>'+(who==="user"?"Du":"n8nCAM")+'</b>: ' + txt;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+    }
+    document.getElementById('sendbtn').onclick = sendChat;
+    document.getElementById('chatinput').onkeydown = e => { if(e.key==="Enter") sendChat(); };
+    function sendChat() {
+        let val = document.getElementById('chatinput').value.trim();
+        if(!val) return;
+        addMsg(val, "user");
+        fetch('/webhook', {
+            method:'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({typ: "chat", text: val})
+        }).then(r=>r.json()).then(resp => {
+            if(resp.reply) addMsg(resp.reply, "n8nCAM");
+        });
+        document.getElementById('chatinput').value = "";
+    }
+    function sendCommand(cmd) {
+        addMsg("Befehl: "+cmd, "user");
+        fetch('/webhook', {
+            method:'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({typ:"befehl", cmd})
+        }).then(r=>r.json()).then(resp=>{
+            if(resp.reply) addMsg(resp.reply,"n8nCAM");
+        });
+    }
+    // ====== Voice (optional, nicht automatisch on) ======
+    // ... Mikrofon-Integration wie bisher, falls benötigt ...
+    </script>
+</body>
+</html>
